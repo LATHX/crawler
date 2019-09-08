@@ -14,7 +14,7 @@ data = data.replace(' ','')
 data1=data.split("\n")
 print(len(data1))
 for i in range(6):
-    data1.remove(data1[0])
+    data1.remove(data1[0]) # Hi
 i = 0
 for item in data1:
     if(i==3):
