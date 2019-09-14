@@ -1,9 +1,22 @@
-import pandas as pd
 import json
-df = pd.read_csv("D:/qunaer_sights.csv")
+import pymysql
+import urllib.parse
+import requests
+import json
+db = pymysql.Connect(
+    host = 'localhost',
+    port = 3306,
+    user = 'root',
+    password = 'root',
+    db = 'qunar',
+    charset = 'utf8'
+)
+cur = db.cursor()
+sql = 'select a.sale,lat,lng from ((select address,sale from qunar) a left join (select title,lat,lng from address) b on a.address = b.title) where lat != \"\"'
+cur.execute(sql)
+res = cur.fetchall()
 points = []
-df = df[["经度","纬度","月销量"]]
-for item in df.values:
-    points.append({"lng":item[0],"lat":item[1],"count":item[2]})
+for item in res:
+    points.append({"lng":item[2],"lat":item[1],"count":item[0]})
 str=json.dumps(points)
 print(str)
