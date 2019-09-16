@@ -21,18 +21,13 @@ db = pymysql.Connect(
 )
 
 cur = db.cursor()
-def isElementExist(element):
-    flag=True
-    try:
-        driver.find_element_by_css_selector(element)
-        return flag
-    except:
-        flag=False
-        return flag
+diming = []
 
 def getData():
     WebDriverWait(driver, 10).until(EC.visibility_of(driver.find_element(by=By.CLASS_NAME, value='sight_item')))
     sightList = driver.find_elements_by_css_selector('.sight_item')
+    cur_count = 0
+    flag = True
     for sight in sightList:
         sightHeader = sight.find_element_by_css_selector('.sight_item_detail.clrfix')
         title = sightHeader.find_element_by_css_selector('.sight_item_about').find_element_by_css_selector('.sight_item_caption>a').text
@@ -61,10 +56,30 @@ def getData():
             price = 0
         if str(sale).isnumeric() == False:
             sale = 0
-        print(title,sale,price,hot,address)
-        #cur.execute("insert into qunar (title,sale,price,hot,address,create_date) values (%s,%s,%s,%s,%s,%s)",(title,sale,price,hot,address,dt))
-    #db.commit()
-    time.sleep(2)
+        #print(title,sale,price,hot,address)
+        if address != '':
+            cur.execute("select count(*) from qunar_new where address = %s",(address))
+        else:
+            cur.execute("select count(*) from qunar_new where title = %s",(title))
+        res = cur.fetchall()
+        count = 0
+        for item in res:
+            count = item[0]
+        #print(count)
+        if count == 0:
+            cur_count = cur_count + 1
+            cur.execute("insert into qunar_new (title,sale,price,hot,address,create_date) values (%s,%s,%s,%s,%s,%s)",(title,sale,price,hot,address,dt))
+        elif count != 0 and cur_count == 0:
+            flag = False
+            cur_count = 0
+            break
+        else:
+            cur_count = cur_count + 1
+            continue
+    db.commit()
+    time.sleep(5)
+    cur_count = 0
+    return flag
 
 def nextPage(page,city):
     driver.get('http://piao.qunar.com/ticket/list.htm?keyword=%E7%83%AD%E9%97%A8%E6%99%AF%E7%82%B9&sort=pp&page='+str(page)+"&city="+city)
@@ -74,13 +89,22 @@ def check():
     if sightList == None or len(sightList) == 0:
         return False
     return True
-diming = ["基隆","淡水"]
+
+def loadCity():
+    cur.execute('select city_name from city where del = 0')
+    res = cur.fetchall()
+    for item in res:
+        diming.append(item[0])
+
+loadCity()
 for n in diming:
     page = 0
-    for page in range(1000):#43
-        print('当前第',(page+1),'页')
+    for page in range(4000):#43
+        print('当前'+n+'第',(page+1),'页')
         nextPage(page+1,n)
         if check() == False:
-            break;
-        getData()
+            break
+        flag = getData()
+        if flag == False:
+            break
 #driver.quit()

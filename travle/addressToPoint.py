@@ -2,6 +2,7 @@ import pymysql
 import urllib.parse
 import requests
 import json
+import time
 db = pymysql.Connect(
     host = 'localhost',
     port = 3306,
@@ -27,21 +28,29 @@ def get_geo_info(id,title):
     if jsonText["status"] == 0:
         lng = jsonText['result']['location']['lng']
         lat = jsonText['result']['location']['lat']
+        print(lat, lng)
+        updateSQL = "update address set lng = %s,lat = %s where id =%s"
+        cur.execute(updateSQL, (lng, lat, id))
+        db.commit()
     else:
         lng = ''
         lat = ''
-    print(lat,lng)
-    updateSQL = "update address set lng = %s,lat = %s where id =%s"
-    cur.execute(updateSQL,(lng,lat, id))
-    db.commit()
+        updateSQL = "delete from address where id =%s"
+        cur.execute(updateSQL, (id))
+        db.commit()
 
 
 
-sql = "select id,title from address"
-res = cur.execute(sql)
-res = cur.fetchall()
+def start():
+    try:
+        sql = "select id,title from address where lat is null or lat =''"
+        res = cur.execute(sql)
+        res = cur.fetchall()
 
-for item in res:
-    print(item[1])
-    get_geo_info(item[0], item[1])
-
+        for item in res:
+            print(item[1])
+            time.sleep(3)
+            get_geo_info(item[0], item[1])
+    except:
+        time.sleep(1 * 60 * 5)
+        start()
