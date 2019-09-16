@@ -12,7 +12,7 @@ db = pymysql.Connect(
     charset = 'utf8'
 )
 cur = db.cursor()
-sql = 'select a.sale,lat,lng from ((select address,sale from qunar) a left join (select title,lat,lng from address) b on a.address = b.title) where lat != \"\"'
+sql = 'select a.sale,lat,lng from ((select address,sale from qunar_new) a left join (select title,lat,lng from address) b on a.address = b.title) where lat != \"\"'
 cur.execute(sql)
 res = cur.fetchall()
 points = []
