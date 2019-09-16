@@ -54,3 +54,5 @@ def start():
     except:
         time.sleep(1 * 60 * 5)
         start()
+
+start()
