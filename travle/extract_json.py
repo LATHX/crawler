@@ -20,3 +20,6 @@ for item in res:
     points.append({"lng":item[2],"lat":item[1],"count":item[0]})
 str=json.dumps(points)
 print(str)
+with open('C:\\Users\\admin\\Desktop\\data.txt','w') as f:    #设置文件对象
+    f.write(str)
+    f.close()
