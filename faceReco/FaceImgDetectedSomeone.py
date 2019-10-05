@@ -5,6 +5,7 @@ import numpy as np
 import PIL.Image as Image
 import PIL.ImageDraw as ImageDraw
 import PIL.ImageFont as ImageFont
+
 imageCV = cv.imread('img/unknow.jpg')
 knowImg1 = face_recognition.load_image_file('img/李沁.jpg')
 knowImg2 = face_recognition.load_image_file('img/杜江.jpg')
